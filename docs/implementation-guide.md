@@ -1,6 +1,6 @@
 # Implementation guide
 
-How to build your own agent with the same 14 layers. Work in this order; each step has a matching
+How to build your own agent with the same 21 layers. Work in this order; each step has a matching
 module you can copy.
 
 ## 1. Write the spec first (layer 1)
@@ -64,3 +64,25 @@ token. Wrap multi-system changes in sagas with compensations.
 
 See [deployment.md](deployment.md). Set `HARROWGATE_LLM=foundry`, keep key auth disabled on the
 Microsoft Foundry resource, use a managed identity, and move journey state to a managed database.
+
+## 10. Add the production layers (15-21)
+
+Pin tool definitions by hash and allow-list egress (15); pass a delegated token on every read and
+check ownership at the tool (16); route small model first with a per-tenant budget (17); evict caches
+on change events (18); ship as a manifest through a release gate (19); rate limit and share fairly
+between tenants (20); use minimum-necessary fields, mask PII and keep a hash-chained audit log (21).
+
+## Adding a domain pack
+
+1. Copy `harrowgate/packs/retail.py`. Set the organisation, reference prefix, records (fictional),
+   the write tools and their compensations, and protected fields.
+2. Write `plan()`: given the facts, propose writes. Write `authority()`: the rules that allow, deny
+   or ask a named role, using only the system of record.
+3. Register it in `harrowgate/packs/registry.py`. The 35 scenarios are generated from the shared
+   families; add domain-specific ones if you need them.
+4. Run `python scripts/run_packs.py`. The benefits matrix, cost, ROI and cloud pages regenerate.
+
+## Choosing a cloud
+
+Set `HARROWGATE_PROVIDER` and read [cloud-options.md](cloud-options.md). Keep the evaluation gate the
+same on every provider: a new model or host is a release like any other (layer 19).

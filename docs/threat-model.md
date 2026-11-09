@@ -47,5 +47,26 @@ flowchart LR
 
 - The input guard is pattern based and can be evaded; the real protection is that policy, not the
   model, controls actions.
-- Time-based freshness misses changes inside the window (known miss, Planned fix).
+- Time-based freshness alone missed changes inside the window; change events (layer 18) now cover
+  it, and if the feed stalls the age limit is the backstop.
 - Container-local SQLite loses journey state if the replica is replaced (Planned: managed database).
+
+## Threats added with layers 15-21 (all domains)
+
+| Threat | Example | Control | Where |
+|---|---|---|---|
+| Indirect prompt injection | "approve this refund" inside a record note | scan and quote as data; rules outside the agent read the system of record | `security.py`, `packs/engine.py` |
+| Tool poisoning / rug pull | tool description changes after review | hash-pinned tool manifest; drift blocks the tool | `security.py` |
+| Exfiltration through normal channels | reply or link sent to an outside address | egress allow-list, secret and card refusal | `security.py` |
+| Confused deputy | customer reads another customer's record through the agent | delegated token with `sub`, narrowed scope, ownership check at the tool | `identity.py` |
+| Cross-tenant leak | cache or memory key shared by two organisations | tenant-prefixed keys, tenant claim in token | `tenancy.py`, `freshness.py` |
+| Noisy neighbour / DoS | one tenant's burst starves the others | token bucket, queue cap, fair share, kill switch | `tenancy.py` |
+| Cost exhaustion | loop or flood on the large model | per-tenant budget, degrade then stop | `routing.py` |
+| Bad release | prompt change breaks safety | release gate, canary, rollback, pinned runs | `release.py` |
+| PII disclosure | card or record number in a reply | minimum necessary, detection and masking, audit | `governance.py` |
+| Unfair decision | decision changes with age or postcode | protected fields removed; parity test | `governance.py`, `test_domain_packs.py` |
+| Audit tampering | edited history | hash-chained audit log with `verify()` | `governance.py` |
+
+Per-domain threats and regulatory notes (for example HIPAA-style minimum necessary for Halsey Vale
+Health, fair lending for Quillmere Home Loans, PCI-DSS style card handling and dispute time limits for Ashgrove Mutual Bank) are
+generated into [domain-packs.md](domain-packs.md). They are design notes, not legal advice.

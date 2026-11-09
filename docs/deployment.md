@@ -1,4 +1,4 @@
-# Deployment (Azure) - written, not run
+# Deployment - written, not run (Azure primary; AWS, Google Cloud, self-hosted)
 
 Nothing in this repository has been deployed. The Terraform and Bicep stacks are validated in CI
 (`terraform validate`, `terraform test` with mocked providers, tflint, checkov, `bicep build`), and the
@@ -44,3 +44,18 @@ No cost figure is claimed here. The bill would come from:
 
 Private endpoints and VNet integration, a managed database for journey state, OpenTelemetry export,
 and an image registry.
+
+## Other options (written, not run)
+
+The core imports no cloud SDK. `HARROWGATE_PROVIDER` picks a model adapter from
+`harrowgate/providers.py`: `mock` (default), `azure` (Microsoft Foundry), `aws`, `gcp` or
+`selfhosted` (any OpenAI-compatible server). Cloud SDKs are imported only inside their adapter. See
+[ADR 0010](adr/0010-cloud-neutral-core.md) and the [cost comparison](cloud-options.md).
+
+| Stack | Folder | What it creates | Checked in CI |
+|---|---|---|---|
+| AWS | `infra/aws` | KMS key, private image registry (immutable, scanned), encrypted logs, secret, ECS Fargate task with read-only root filesystem and no public IP, role that may invoke one model only | fmt, validate, tflint, checkov |
+| Google Cloud | `infra/gcp` | service account, Artifact Registry (immutable), Secret Manager, Cloud Run with internal ingress only | fmt, validate, tflint, checkov |
+| Self-hosted | `infra/onprem` | docker compose: the API plus an OpenAI-compatible model server on an NVIDIA GPU, internal network, policy key as a file secret (`HARROWGATE_POLICY_KEY_FILE`) | not run |
+
+None of these has a deploy workflow; they are references and are never applied from this repo.

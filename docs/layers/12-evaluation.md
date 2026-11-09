@@ -42,8 +42,8 @@ The suite has 129<!-- m:suite.scenarios --> scenarios in 29<!-- m:suite.families
 tight duty-free timing, lost replies, crashes, timeouts, malformed model output, prompt injection,
 cancellation and human approval.
 
-**Measured:** v0 passes 69.0%<!-- m:v0.success.rate -->, the final version 95.3%<!-- m:final.success.rate -->
-(Wilson 95% interval 90.2%<!-- m:final.success.wilson95.0 --> to 97.9%<!-- m:final.success.wilson95.1 -->). Safety
+**Measured:** v0 passes 69.0%<!-- m:v0.success.rate -->, the final version 98.4%<!-- m:final.success.rate -->
+(Wilson 95% interval 94.5%<!-- m:final.success.wilson95.0 --> to 99.6%<!-- m:final.success.wilson95.1 -->). Safety
 checks (access, unauthorized actions) are 100% for both versions, and a test enforces that. Full
 table: [results/eval_report.md](../../results/eval_report.md).
 
@@ -57,3 +57,11 @@ safety at 100% for every scenario, known misses stay visible, a wrong destinatio
 
 The scenarios are self-written, so they test the design, not real-world coverage. Real traffic should
 feed new scenarios into the regression set (layer 14).
+
+## The same checks in eight domains
+
+`harrowgate/packs/evaluate.py` applies the process checks to each domain pack (status, effects,
+answer, duplicate effects, unauthorized actions, cross-customer reads, exfiltration, PII leaks,
+minimum necessary, budget). Every pack has 35 scenarios in 19 families, including one known miss on
+purpose. Results and per-layer ablations: [domain packs](../domain-packs.md) and the
+[benefits matrix](../benefits-matrix.md).

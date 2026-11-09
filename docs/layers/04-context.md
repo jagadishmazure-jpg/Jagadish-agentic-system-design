@@ -37,5 +37,7 @@ consent.
 
 ## Trade-offs
 
-A time-based rule cannot see a change that lands inside the window. Four scenarios show that miss on
-purpose; event-driven invalidation is Planned.
+A time-based rule cannot see a change that lands inside the window. Four scenarios (S025-S028) showed
+that miss; layer 18 now adds change events, so the cache is evicted when a flight changes (released as
+v4). The age limit stays as a backstop if the feed stalls. In the eight domain packs the same
+context builder cuts packets to about 40-47 tokens from 420-670.

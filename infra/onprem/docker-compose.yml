@@ -1,0 +1,38 @@
+# Self-hosted option: the assistant plus an open model on your own NVIDIA server.
+# WRITTEN, NOT RUN in this repository. The model server is only reachable on the internal network.
+name: harrowgate-onprem
+services:
+  api:
+    build: ../..
+    image: harrowgate-assistant:local
+    environment:
+      HARROWGATE_PROVIDER: selfhosted
+      SELFHOSTED_BASE_URL: http://llm:8000
+      SELFHOSTED_MODEL: open-8b-instruct
+      HARROWGATE_POLICY_KEY_FILE: /run/secrets/policy_key
+    secrets: [policy_key]
+    read_only: true
+    ports: ["127.0.0.1:8080:8080"]
+    networks: [internal, edge]
+    depends_on: [llm]
+  llm:
+    # Pin by digest before use; the tag is a placeholder.
+    image: vllm/vllm-openai:v0.9.2
+    command: ["--model", "/models/open-8b-instruct", "--served-model-name", "open-8b-instruct",
+              "--max-model-len", "8192", "--gpu-memory-utilization", "0.90"]
+    volumes: ["/srv/models:/models:ro"]
+    networks: [internal]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+secrets:
+  policy_key:
+    file: ./policy_key.txt
+networks:
+  internal:
+    internal: true
+  edge: {}

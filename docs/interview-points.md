@@ -13,8 +13,10 @@ loop fixes the most common failure and releases only without regressions.
 
 **Q: What result can you show?**
 On 129<!-- m:suite.scenarios --> synthetic scenarios, the loop took v0 from 69.0%<!-- m:v0.success.rate --> to
-95.3%<!-- m:final.success.rate -->, with zero duplicate side effects and zero unauthorized actions. The rest are known
-misses I kept visible.
+98.4%<!-- m:final.success.rate -->, with zero duplicate side effects and zero unauthorized actions. The rest are known
+misses I kept visible. The same engine runs eight fictional domains (airport, grocer, lender, insurer,
+hospital, bank, IT desk, carrier): 272<!-- p:totals.passed --> of 280<!-- p:totals.scenarios --> scenarios pass with all 21 layers on,
+48<!-- p:totals.v0_passed --> with them off.
 
 ## 1. Requirements
 **Q: Why a typed spec?** So rules are checked, not just read. A test fails if a tool has no authority rule.
@@ -64,7 +66,7 @@ misses I kept visible.
 
 ## 12. Evaluation
 **Q: Why process over outcome?** A correct-sounding answer can hide a wrong gate or a duplicate message. 11 checks look at both.
-**Q: How sure are you of 95.3%?** Wilson interval 90.2%<!-- m:final.success.wilson95.0 --> to 97.9%<!-- m:final.success.wilson95.1 --> on a self-written suite: a regression check, not a benchmark.
+**Q: How sure are you of 98.4%?** Wilson interval 94.5%<!-- m:final.success.wilson95.0 --> to 99.6%<!-- m:final.success.wilson95.1 --> on a self-written suite: a regression check, not a benchmark.
 
 ## 13. Observability
 **Q: How do you find root cause?** Context spans store data age; compare with when the gate really changed: that is stale context.
@@ -72,4 +74,35 @@ misses I kept visible.
 
 ## 14. Learning
 **Q: How do you avoid fixing one thing and breaking another?** Retest the whole suite; release only if success rises, safety stays 100% and no regression-set scenario breaks.
-**Q: What is still failing?** A gate change inside the freshness window, a parser word clash, and a tokenisation miss. All kept as tests.
+**Q: What is still failing?** A parser word clash and a tokenisation miss in the airport suite, and in every domain pack a corrected reference ("not X, I meant Y") read wrongly. All kept as tests. The gate change inside the freshness window is fixed by change events (v4).
+
+## 15. Security
+**Q: Your agent reads customer notes. What stops "ignore the rules" in a note?** Content is scanned and quoted as data, and more importantly the rules live outside the agent and read the system of record. Turning the security layer off shows attacks followed in every domain suite.
+**Q: What is tool poisoning?** A tool's description changes after review. Tools are pinned by a hash of name, description and schema; drift makes the tool unavailable until re-reviewed.
+**Q: How does data leave without a breach?** Through a normal email or link. An egress guard allows only internal domains and the requester's own channel, and refuses secrets and card numbers.
+
+## 16. Identity
+**Q: What is a confused deputy?** An agent with broad rights doing what a caller asks with them. Tokens carry the person, the agent and narrowed scopes; the tool server checks record ownership.
+**Q: Can delegation widen access?** No: `delegate()` only narrows scope, and a test proves it.
+
+## 17. Routing and budgets
+**Q: How did you cut cost?** Rules as code, templates, small context, small model first with a cascade on schema failure: 87.5%<!-- p:totals.cost_cut_min --> to 93.7%<!-- p:totals.cost_cut_max --> lower simulated cost per request at the same pass rate, under assumed prices.
+**Q: What stops a runaway bill?** A budget per tenant: degrade to the small tier, then stop and hand to a person.
+
+## 18. Freshness
+**Q: When is a cached answer wrong?** When the source changed after you cached it. Change events evict; the age limit is a backstop; answer caches key on document version.
+
+## 19. Release
+**Q: How do you ship a prompt change?** As a manifest with a content-hash id. The gate refuses any drop in success, any new safety failure, or any lost passing scenario; canary buckets are stable per customer; in-flight runs stay on their manifest.
+
+## 20. Multi-tenancy
+**Q: One tenant floods you. Then what?** Token bucket per tenant, queue cap, shed low priority first, fair share between tenants, kill switch per tenant. In the simulation quiet tenants stay fully served.
+
+## 21. Governance and responsible AI
+**Q: How do you prove the agent did not use protected data?** Minimum-necessary field lists remove protected fields before any decision, a parity test flips only protected fields and checks the decision does not change, and the audit log is hash-chained.
+**Q: HIPAA-style or fair-lending concerns?** Design notes per domain in the domain packs page; they are engineering controls, not legal advice.
+
+## Domains, cost, ROI, cloud
+**Q: Why packs instead of eight agents?** The risky parts (permissions, idempotency, undo, privacy, audit) are shared and tested once; a pack adds only records, writes and rules.
+**Q: Is the ROI real?** No. It is a transparent model with every input labelled ASSUMED and measured containment from the synthetic suite. It shows how to reason, not a client result.
+**Q: Why cloud-neutral?** The core imports no cloud SDK; a model port has adapters for Microsoft Foundry (primary), AWS, Google Cloud and a self-hosted OpenAI-compatible server. Hosting is chosen by cost, data location and team skills.

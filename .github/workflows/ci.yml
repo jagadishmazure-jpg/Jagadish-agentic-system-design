@@ -27,6 +27,8 @@ jobs:
         run: python scripts/count_tests.py
       - name: Evaluation gate (re-run 129 scenarios + learning loop, compare with results/)
         run: python scripts/run_eval.py --check
+      - name: Domain packs gate (8 domains, ablations, ROI and cost docs regenerated and compared)
+        run: python scripts/run_packs.py --check
       - name: Documented output and numbers match a fresh run
         run: |
           python scripts/render_docs.py --check
@@ -61,6 +63,16 @@ jobs:
         run: pip install --quiet checkov==3.3.20 && checkov -d "$STACK" --config-file .checkov.yaml
       - name: bicep build
         run: az bicep install && az bicep build --file infra/bicep/main.bicep --stdout > /dev/null
+      - name: Other clouds (AWS, Google Cloud) - fmt / init / validate / tflint / checkov, never applied
+        env: { GITHUB_TOKEN: "${{ github.token }}" }
+        run: |
+          for d in infra/aws infra/gcp; do
+            terraform -chdir="$d" fmt -check -recursive -diff
+            terraform -chdir="$d" init -backend=false -input=false
+            terraform -chdir="$d" validate
+            (cd "$d" && tflint --init && tflint --format compact)
+            checkov -d "$d" --config-file .checkov.yaml
+          done
 
   image:
     runs-on: ubuntu-latest

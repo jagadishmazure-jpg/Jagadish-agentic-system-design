@@ -7,4 +7,4 @@
 **Decision.** Context fields carry source and age. Gate and status older than 5 minutes are refetched.
 
 **Consequences.** Fixes most stale cases at the cost of a few extra reads. Changes inside the window
-are still missed (known miss); event-driven invalidation is Planned.
+were still missed; change events fixed them in v4 (ADR 0007, layer 18).
