@@ -74,7 +74,7 @@ def policy_key() -> bytes:
 class PolicyEngine:
     facts: Callable[[str, dict], dict]  # (question, args) -> facts from systems of record
     spec: ProductSpec = SPEC
-    key: bytes = field(default_factory=lambda: policy_key())
+    key: bytes = field(default_factory=policy_key)
     untrusted_input: bool = False  # set per request by the input guard
     _sent: dict[str, int] = field(default_factory=dict)
     log: list[dict] = field(default_factory=list)
