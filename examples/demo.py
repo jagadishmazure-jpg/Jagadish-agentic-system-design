@@ -1,8 +1,13 @@
 """End-to-end demo: one passenger, one message, all 14 layers in play (simulated data, offline)."""
 
-from harrowgate import world as W
-from harrowgate.evaluation import build_world, evaluate
-from harrowgate.system import BASELINE, Config, System
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # run from a fresh clone without installing
+
+from harrowgate import world as W  # noqa: E402
+from harrowgate.evaluation import build_world, evaluate  # noqa: E402
+from harrowgate.system import BASELINE, Config, System  # noqa: E402
 
 SCENARIO = {
     "id": "DEMO", "family": "demo", "passenger_id": "P-1001",

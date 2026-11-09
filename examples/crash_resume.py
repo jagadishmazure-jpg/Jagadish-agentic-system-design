@@ -4,9 +4,14 @@ v0 has no idempotency keys, so the resumed step sends the message again. v3 repl
 result for the same key, so the passenger gets one message.
 """
 
-from harrowgate.evaluation import build_world
-from harrowgate.runtime import SimulatedCrash
-from harrowgate.system import BASELINE, Config, System
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # run from a fresh clone without installing
+
+from harrowgate.evaluation import build_world  # noqa: E402
+from harrowgate.runtime import SimulatedCrash  # noqa: E402
+from harrowgate.system import BASELINE, Config, System  # noqa: E402
 
 SCN = {"passenger_id": "P-1002", "setup": {"now": 520}, "cache_age": None, "faults": {}}
 for config in (BASELINE, Config()):

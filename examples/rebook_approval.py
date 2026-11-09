@@ -1,7 +1,12 @@
 """Layers 7, 8, 11: a missed flight. The agent proposes; policy and a human decide; a saga executes."""
 
-from harrowgate.evaluation import build_world
-from harrowgate.system import Config, System
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # run from a fresh clone without installing
+
+from harrowgate.evaluation import build_world  # noqa: E402
+from harrowgate.system import Config, System  # noqa: E402
 
 for answer in ("approve", "deny", None):
     scn = {"passenger_id": "P-1002", "setup": {"now": 630, "location": "PLAZA"}, "cache_age": None, "faults": {}}
