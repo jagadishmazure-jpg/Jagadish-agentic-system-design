@@ -11,10 +11,12 @@ REPORT = learning_loop(build_suite())
 
 def test_loop_fixes_most_frequent_cause_first_and_ends_at_default_config():
     causes = [r.cause for r in REPORT.rounds[1:]]
-    assert causes == ["stale_context", "unsafe_timing", "duplicate_side_effect"]
+    assert causes == ["stale_context", "unsafe_timing", "duplicate_side_effect", "stale_context"]
+    assert [r.change.split(":")[0] for r in REPORT.rounds[1:]] == ["freshness_check", "boarding_guard",
+                                                                     "idempotency", "change_events"]
     final = REPORT.final.config
-    assert (final.freshness_check, final.boarding_guard, final.idempotency) == (True, True, True)
-    assert (Config().freshness_check, Config().boarding_guard, Config().idempotency) == (True, True, True)
+    flags = ("freshness_check", "boarding_guard", "idempotency", "change_events")
+    assert all(getattr(final, f) for f in flags) and all(getattr(Config(), f) for f in flags)
 
 
 def test_every_round_released_without_regressions_and_success_rises():
@@ -47,5 +49,5 @@ def test_a_fix_that_breaks_a_passing_scenario_is_not_released(monkeypatch):
 
 
 def test_each_fix_maps_to_a_real_config_flag():
-    for flag, _ in FIXES.values():
+    for flag, _ in (f for fixes in FIXES.values() for f in fixes):
         assert hasattr(BASELINE, flag) and getattr(BASELINE, flag) is False

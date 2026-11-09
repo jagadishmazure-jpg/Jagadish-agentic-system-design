@@ -12,13 +12,14 @@ Suite: 129 scenarios in 29 families. This is a self-written regression suite, no
 | v1 | stale_context | freshness_check: context layer refuses volatile data older than the spec limit | 78.3% | 101/129 | yes | 0 |
 | v2 | unsafe_timing | boarding_guard: orchestration checks time-to-boarding before any detour | 88.4% | 114/129 | yes | 0 |
 | v3 | duplicate_side_effect | idempotency: action layer sends idempotency keys on every write | 95.3% | 123/129 | yes | 0 |
+| v4 | stale_context | change_events: caches are evicted by change events, not only by age (layer 18) | 98.4% | 127/129 | yes | 0 |
 
 ## v0 vs final, per check
 
 | Check | v0 | final |
 | --- | --- | --- |
 | status | 100.0% | 100.0% |
-| location | 87.6% | 96.9% |
+| location | 87.6% | 100.0% |
 | route | 100.0% | 100.0% |
 | timing | 89.9% | 100.0% |
 | tool_calls | 89.9% | 99.2% |
@@ -33,11 +34,11 @@ Suite: 129 scenarios in 29 families. This is a self-written regression suite, no
 
 | Metric | v0 | final |
 | --- | --- | --- |
-| success (Wilson 95% CI) | 69.0% (60.6-76.3) | 95.3% (90.2-97.9) |
+| success (Wilson 95% CI) | 69.0% (60.6-76.3) | 98.4% (94.5-99.6) |
 | duplicate side effects | 9 | 0 |
 | unauthorized actions | 0 | 0 |
 | repeated reads (all / excluding bag-scan polling) | 13 / 3 | 13 / 3 |
-| avg tool calls per request | 4.74 | 4.89 |
+| avg tool calls per request | 4.74 | 4.92 |
 | avg model tokens per request | 162.8 | 162.8 |
 | simulated latency p50 / p95 (ms) | 1056 / 3552 | 1128 / 3552 |
 | simulated cost per request (USD, assumed price) | 0.000326 | 0.000326 |
@@ -64,7 +65,7 @@ Suite: 129 scenarios in 29 families. This is a self-written regression suite, no
 | flight_status | 6/6 |
 | gate_change_cannot_make_it | 2/2 |
 | gate_change_fresh | 12/12 |
-| gate_change_inside_ttl | 0/4 |
+| gate_change_inside_ttl | 4/4 |
 | gate_change_stale_cache | 12/12 |
 | injection_in_gate_question | 3/3 |
 | injection_rebook | 3/3 |
@@ -85,9 +86,5 @@ Suite: 129 scenarios in 29 families. This is a self-written regression suite, no
 
 ## Known misses (kept as failing scenarios on purpose)
 
-- `S025`: change landed inside the 5-minute cache window; needs event-driven cache invalidation
-- `S026`: change landed inside the 5-minute cache window; needs event-driven cache invalidation
-- `S027`: change landed inside the 5-minute cache window; needs event-driven cache invalidation
-- `S028`: change landed inside the 5-minute cache window; needs event-driven cache invalidation
 - `S090`: keyword parser reads 'delayed' as a flight-status question
 - `S093`: retriever splits 'Wi-Fi' into 'wi' + 'fi', so 'wifi' does not match

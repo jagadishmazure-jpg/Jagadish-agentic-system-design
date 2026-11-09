@@ -67,12 +67,12 @@ def build_suite(seed: int = 7) -> list[dict]:
             {**gate_expect, "must_call": ["flight_status", "kg_query"]},
             setup={"now": rng.randint(505, 540), "gate_change": {"to": new, "ago": rng.randint(1, age - 1)}},
             cache_age=age)
-    # 3. gate changed inside the freshness window - TTL freshness cannot see it (kept as a known miss)
+    # 3. gate changed inside the freshness window - a time limit alone cannot see it; layer 18 change events can
     for i in range(4):
         pid = list(PAX)[i % 3]
         add("gate_change_inside_ttl", pid, GATE_TEXTS[i % 4], dict(gate_expect),
             setup={"now": 520, "gate_change": {"to": OTHER_PIER[GATE[PAX[pid]]][i % 4], "ago": 1}}, cache_age=3,
-            known_miss="change landed inside the 5-minute cache window; needs event-driven cache invalidation")
+            known_miss="change landed inside the 5-minute cache window; only change events (layer 18) catch it")
     # 4. flight status lookups
     for i in range(6):
         pid = list(PAX)[i % 3]

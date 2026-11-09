@@ -83,6 +83,18 @@ class FlightCache:
 
     def __init__(self) -> None:
         self.entries: dict[str, CacheEntry] = {}
+        self.cursor = 0  # position in the change feed (layer 18)
+
+    def sync(self, feed) -> int:
+        """Evict flights whose record changed after they were cached (layer 18 change events)."""
+        n = 0
+        for ev in feed.since(self.cursor):
+            e = self.entries.get(ev.key)
+            if ev.table == "flights" and e is not None and ev.at >= e.fetched_at:
+                del self.entries[ev.key]
+                n += 1
+        self.cursor = feed.head
+        return n
 
     def put(self, flight_id: str, data: dict, fetched_at: int) -> None:
         self.entries[flight_id] = CacheEntry(dict(data), fetched_at)

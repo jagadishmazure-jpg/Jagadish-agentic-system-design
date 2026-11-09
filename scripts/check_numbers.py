@@ -3,6 +3,7 @@
 In README.md and docs/*.md, a number followed by a marker is checked against results/metrics.json:
 
     accuracy **91.3%**<!-- m:variants.full.accuracy.rate -->      (percent, one decimal)
+    8 domains<!-- p:totals.domains -->                          (p: = results/packs.json)
     temperature 1.85<!-- m:calibration.temperature -->            (same decimals as written)
 
 The test count between <!-- tests -->N<!-- /tests --> must equal what scripts/count_tests.py prints.
@@ -18,7 +19,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-MARK = re.compile(r"(-?[\d,]*\.?\d+)(%?)\**<!-- m:([\w.\-]+) -->")
+MARK = re.compile(r"(-?[\d,]*\.?\d+)(%?)\**<!-- ([mp]):([\w.\-]+) -->")
 TESTS = re.compile(r"<!-- tests -->(\d+)<!-- /tests -->")
 
 
@@ -29,10 +30,10 @@ def lookup(m: dict, path: str):
     return cur
 
 
-def check_text(text: str, metrics: dict) -> list[str]:
+def check_text(text: str, metrics: dict, packs: dict | None = None) -> list[str]:
     bad = []
-    for num, pct, path in MARK.findall(text):
-        val = float(lookup(metrics, path))
+    for num, pct, src, path in MARK.findall(text):
+        val = float(lookup(metrics if src == "m" else packs, path))
         written = float(num.replace(",", ""))
         if pct:
             val *= 100
@@ -50,13 +51,14 @@ def test_count() -> int:
 
 def main() -> int:
     metrics = json.loads((ROOT / "results/metrics.json").read_text())
+    packs = json.loads((ROOT / "results/packs.json").read_text())
     files = [ROOT / "README.md", *sorted((ROOT / "docs").rglob("*.md"))]
     problems, n_marks = [], 0
     n = test_count()
     for f in files:
         text = f.read_text()
         n_marks += len(MARK.findall(text))
-        problems += [f"{f.name}: {p}" for p in check_text(text, metrics)]
+        problems += [f"{f.name}: {p}" for p in check_text(text, metrics, packs)]
         problems += [f"{f.name}: test count {c} != {n}" for c in TESTS.findall(text) if int(c) != n]
     if problems:
         print("\n".join(problems))

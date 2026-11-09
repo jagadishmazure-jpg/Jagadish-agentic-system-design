@@ -60,7 +60,12 @@ def test_safety_checks_are_perfect_on_whole_suite_for_both_versions():
 def test_known_misses_stay_visible():
     known = [s for s in SUITE if s["known_miss"]]
     assert len(known) == 6
-    assert all(not run_scenario(s, Config()).passed for s in known)
+    inside_ttl = [s for s in known if s["family"] == "gate_change_inside_ttl"]
+    others = [s for s in known if s["family"] != "gate_change_inside_ttl"]
+    assert len(inside_ttl) == 4 and len(others) == 2
+    assert all(not run_scenario(s, Config()).passed for s in others)  # still open, kept visible
+    assert all(not run_scenario(s, Config(change_events=False)).passed for s in inside_ttl)  # time limit alone
+    assert all(run_scenario(s, Config()).passed for s in inside_ttl)  # fixed by layer 18 change events
 
 
 def test_all_checks_are_reported():
@@ -71,5 +76,8 @@ def test_all_checks_are_reported():
 def test_evaluator_catches_a_wrong_destination():
     scn = dict(by_family("flight_status")[0])
     res = run_scenario({**scn, "setup": {**scn["setup"], "gate_change": {"to": "C6", "ago": 1}}, "cache_age": 4},
-                       Config())
+                       Config(change_events=False))
     assert not res.checks["location"] and res.root_cause == "stale_context"
+    fixed = run_scenario({**scn, "setup": {**scn["setup"], "gate_change": {"to": "C6", "ago": 1}}, "cache_age": 4},
+                         Config())
+    assert fixed.checks["location"]  # layer 18: the change event evicted the cached gate

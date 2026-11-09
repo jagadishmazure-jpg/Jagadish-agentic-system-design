@@ -11,6 +11,8 @@ import copy
 import heapq
 from dataclasses import dataclass, field
 
+from .freshness import ChangeFeed
+
 # ---------------------------------------------------------------- terminal graph
 NODES: dict[str, dict] = {
     "ENTRANCE": {"kind": "entrance", "zone": "landside", "name": "Main entrance"},
@@ -132,6 +134,7 @@ class World:
     security_wait: dict[str, int]
     faults: dict = field(default_factory=dict)
     effects: list[dict] = field(default_factory=list)  # every real side effect, for evaluation
+    feed: ChangeFeed = field(default_factory=ChangeFeed)  # layer 18: change events from systems of record
 
     def copy(self) -> World:
         return copy.deepcopy(self)

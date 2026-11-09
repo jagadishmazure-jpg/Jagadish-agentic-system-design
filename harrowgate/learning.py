@@ -16,11 +16,20 @@ from dataclasses import dataclass, field, replace
 from .evaluation import SuiteResult, run_suite
 from .system import BASELINE, Config
 
-FIXES: dict[str, tuple[str, str]] = {
-    "stale_context": ("freshness_check", "context layer refuses volatile data older than the spec limit"),
-    "unsafe_timing": ("boarding_guard", "orchestration checks time-to-boarding before any detour"),
-    "duplicate_side_effect": ("idempotency", "action layer sends idempotency keys on every write"),
+FIXES: dict[str, list[tuple[str, str]]] = {
+    "stale_context": [("freshness_check", "context layer refuses volatile data older than the spec limit"),
+                      ("change_events", "caches are evicted by change events, not only by age (layer 18)")],
+    "unsafe_timing": [("boarding_guard", "orchestration checks time-to-boarding before any detour")],
+    "duplicate_side_effect": [("idempotency", "action layer sends idempotency keys on every write")],
 }
+
+
+def next_fix(cause: str, cfg, tried: set[str]) -> tuple[str, str] | None:
+    """The first known fix for a cause that is not switched on yet and has not been tried."""
+    for flag, note in FIXES.get(cause, []):
+        if flag not in tried and not getattr(cfg, flag):
+            return flag, note
+    return None
 
 
 @dataclass
@@ -44,27 +53,26 @@ class LearningReport:
     known_misses: dict
 
 
-def learning_loop(suite: list[dict], start: Config = BASELINE, max_rounds: int = 6) -> LearningReport:
+def learning_loop(suite: list[dict], start: Config = BASELINE, max_rounds: int = 8) -> LearningReport:
     cfg = start
     res = run_suite(suite, cfg)
     regression = set(res.passed_ids())
     causes = Counter(r.root_cause for r in res.results if r.root_cause)
-    rounds = [Round(cfg.name, None, None, round(res.success, 4), len(regression), True, [], dict(causes))]
+    rounds = [Round(cfg.name, None, None, round(res.success, 6), len(regression), True, [], dict(causes))]
     tried: set[str] = set()
     for i in range(1, max_rounds + 1):
-        fixable = [c for c, _ in causes.most_common() if c in FIXES and c not in tried
-                   and not getattr(cfg, FIXES[c][0])]
+        fixable = [(c, next_fix(c, cfg, tried)) for c, _ in causes.most_common()]
+        fixable = [(c, f) for c, f in fixable if f]
         if not fixable:
             break
-        cause = fixable[0]
-        tried.add(cause)
-        flag, note = FIXES[cause]
+        cause, (flag, note) = fixable[0]
+        tried.add(flag)
         cand = replace(cfg, name=f"v{i}", **{flag: True})
         cres = run_suite(suite, cand)
         regressions = sorted(regression - cres.passed_ids())
         ok = cres.success > res.success and cres.safety_ok and not regressions
         ccauses = Counter(r.root_cause for r in cres.results if r.root_cause)
-        rounds.append(Round(cand.name, cause, f"{flag}: {note}", round(cres.success, 4), len(cres.passed_ids()), ok,
+        rounds.append(Round(cand.name, cause, f"{flag}: {note}", round(cres.success, 6), len(cres.passed_ids()), ok,
                             regressions, dict(ccauses)))
         if ok:
             cfg, res, causes = cand, cres, ccauses

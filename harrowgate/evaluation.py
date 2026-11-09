@@ -60,6 +60,7 @@ def build_world(scn: dict) -> tuple[W.World, FlightCache]:
     def apply_change():
         f = w.flights[p["flight"]]
         f["gate"], f["gate_updated_at"] = change["to"], change_at
+        w.feed.publish("flights", p["flight"], change_at)
 
     if change and (cache_at is None or change_at <= cache_at):
         apply_change()
@@ -219,8 +220,8 @@ class SuiteResult:
         return {
             "config": self.config.name,
             "flags": {"freshness_check": self.config.freshness_check, "boarding_guard": self.config.boarding_guard,
-                      "idempotency": self.config.idempotency},
-            "scenarios": n, "passed": k, "success": {"rate": round(k / n, 4), "wilson95": wilson(k, n)},
+                      "idempotency": self.config.idempotency, "change_events": self.config.change_events},
+            "scenarios": n, "passed": k, "success": {"rate": round(k / n, 6), "wilson95": wilson(k, n)},
             "checks": {c: round(sum(r.checks[c] for r in self.results) / n, 4) for c in CHECKS},
             "duplicate_effects": sum(x["duplicate_effects"] for x in m),
             "unauthorized_actions": sum(x["unauthorized_actions"] for x in m),

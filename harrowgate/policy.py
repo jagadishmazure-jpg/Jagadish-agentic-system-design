@@ -61,12 +61,20 @@ PROPOSERS: dict[str, set[str]] = {
 }
 
 
+def policy_key() -> bytes:
+    """Key for signing decisions: a mounted secret file, then an environment value, else a random per-process key."""
+    path = os.environ.get("HARROWGATE_POLICY_KEY_FILE")
+    if path and os.path.exists(path):
+        with open(path, "rb") as f:
+            return f.read().strip()
+    return os.environ.get("HARROWGATE_POLICY_KEY", "").encode() or secrets.token_bytes(32)
+
+
 @dataclass
 class PolicyEngine:
     facts: Callable[[str, dict], dict]  # (question, args) -> facts from systems of record
     spec: ProductSpec = SPEC
-    key: bytes = field(default_factory=lambda: os.environ.get("HARROWGATE_POLICY_KEY", "").encode()
-                       or secrets.token_bytes(32))
+    key: bytes = field(default_factory=lambda: policy_key())
     untrusted_input: bool = False  # set per request by the input guard
     _sent: dict[str, int] = field(default_factory=dict)
     log: list[dict] = field(default_factory=list)

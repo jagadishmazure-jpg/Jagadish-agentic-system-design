@@ -35,14 +35,15 @@ ASSUMED_USD_PER_1K_TOKENS = 0.002  # illustrative assumption for the simulated c
 
 @dataclass(frozen=True)
 class Config:
-    name: str = "v3"
+    name: str = "v4"
     freshness_check: bool = True
     boarding_guard: bool = True
     idempotency: bool = True
+    change_events: bool = True  # layer 18
     max_age: int = int(SPEC.constraint("C4"))
 
 
-BASELINE = Config(name="v0", freshness_check=False, boarding_guard=False, idempotency=False)
+BASELINE = Config(name="v0", freshness_check=False, boarding_guard=False, idempotency=False, change_events=False)
 
 
 @dataclass
@@ -125,7 +126,7 @@ class System:
                                        self.world.orders])) + count_tokens(FAQ_PATH.read_text())
         builder = ContextBuilder(client, self.cache, self.store, tracer, self.world.now,
                                  freshness_check=self.config.freshness_check, max_age=self.config.max_age,
-                                 raw_tokens=raw)
+                                 raw_tokens=raw, feed=self.world.feed if self.config.change_events else None)
         executor = ActionExecutor(client, policy, tracer, use_idempotency=self.config.idempotency)
         return RequestRuntime(self.world, self.config, tracer, client, builder, executor, self.llm, self.store,
                               run_id, self.approver, budget)

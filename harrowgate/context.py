@@ -42,9 +42,10 @@ class ContextPacket:
 
 class ContextBuilder:
     def __init__(self, client: ToolClient, cache: FlightCache, store: StateStore, tracer: Tracer, now: int,
-                 *, freshness_check: bool, max_age: int, raw_tokens: int):
+                 *, freshness_check: bool, max_age: int, raw_tokens: int, feed=None):
         self.client, self.cache, self.store, self.tracer = client, cache, store, tracer
         self.now, self.freshness_check, self.max_age, self.raw_tokens = now, freshness_check, max_age, raw_tokens
+        self.feed = feed  # layer 18: when set, cached flights are evicted as soon as they change
         self._memo: dict[tuple, dict] = {}
 
     def read(self, caller: str, tool: str, args: dict) -> dict:
@@ -55,6 +56,10 @@ class ContextBuilder:
         return self._memo[key]
 
     def flight(self, caller: str, flight_id: str) -> dict:
+        if self.feed is not None:
+            evicted = self.cache.sync(self.feed)
+            if evicted:
+                self.tracer.span("state", "cache_evicted", evicted=evicted)
         entry = self.cache.get(flight_id)
         if entry is not None:
             age = self.now - entry.fetched_at

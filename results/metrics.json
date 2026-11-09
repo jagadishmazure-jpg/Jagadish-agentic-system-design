@@ -1,21 +1,21 @@
 {
   "final": {
     "avg_tokens": 162.8,
-    "avg_tool_calls": 4.89,
+    "avg_tool_calls": 4.92,
     "checks": {
       "access": 1.0,
       "answer": 0.9845,
       "budget": 1.0,
       "duplicate_effects": 1.0,
       "effects": 1.0,
-      "location": 0.969,
+      "location": 1.0,
       "route": 1.0,
       "status": 1.0,
       "timing": 1.0,
       "tool_calls": 0.9922,
       "unauthorized_actions": 1.0
     },
-    "config": "v3",
+    "config": "v4",
     "context": {
       "avg_packet_tokens": 57.9,
       "avg_raw_tokens": 1530,
@@ -26,10 +26,6 @@
     "duplicate_reads_not_polling": 3,
     "escalation_rate": 0.1008,
     "failed": [
-      "S025",
-      "S026",
-      "S027",
-      "S028",
       "S090",
       "S093"
     ],
@@ -100,7 +96,7 @@
       },
       "gate_change_inside_ttl": {
         "n": 4,
-        "passed": 0
+        "passed": 4
       },
       "gate_change_stale_cache": {
         "n": 12,
@@ -153,13 +149,13 @@
     },
     "flags": {
       "boarding_guard": true,
+      "change_events": true,
       "freshness_check": true,
       "idempotency": true
     },
-    "passed": 123,
+    "passed": 127,
     "repairs": 4,
     "root_causes": {
-      "stale_context": 4,
       "wrong_outcome": 2
     },
     "scenarios": 129,
@@ -169,16 +165,16 @@
       "p95": 3552
     },
     "success": {
-      "rate": 0.9535,
+      "rate": 0.984496,
       "wilson95": [
-        0.9022,
-        0.9785
+        0.9452,
+        0.9957
       ]
     },
     "unauthorized_actions": 0
   },
-  "first_round_success": 0.6899,
-  "improvement_points": 26.4,
+  "first_round_success": 0.689922,
+  "improvement_points": 29.5,
   "knowledge": {
     "faq_hit_at_1": {
       "correct": 17,
@@ -192,10 +188,6 @@
     }
   },
   "known_misses": {
-    "S025": "change landed inside the 5-minute cache window; needs event-driven cache invalidation",
-    "S026": "change landed inside the 5-minute cache window; needs event-driven cache invalidation",
-    "S027": "change landed inside the 5-minute cache window; needs event-driven cache invalidation",
-    "S028": "change landed inside the 5-minute cache window; needs event-driven cache invalidation",
     "S090": "keyword parser reads 'delayed' as a flight-status question",
     "S093": "retriever splits 'Wi-Fi' into 'wi' + 'fi', so 'wifi' does not match"
   },
@@ -213,7 +205,7 @@
       "passed": 89,
       "regressions": [],
       "released": true,
-      "success": 0.6899,
+      "success": 0.689922,
       "version": "v0"
     },
     {
@@ -228,7 +220,7 @@
       "passed": 101,
       "regressions": [],
       "released": true,
-      "success": 0.7829,
+      "success": 0.782946,
       "version": "v1"
     },
     {
@@ -242,7 +234,7 @@
       "passed": 114,
       "regressions": [],
       "released": true,
-      "success": 0.8837,
+      "success": 0.883721,
       "version": "v2"
     },
     {
@@ -255,12 +247,24 @@
       "passed": 123,
       "regressions": [],
       "released": true,
-      "success": 0.9535,
+      "success": 0.953488,
       "version": "v3"
+    },
+    {
+      "cause": "stale_context",
+      "causes": {
+        "wrong_outcome": 2
+      },
+      "change": "change_events: caches are evicted by change events, not only by age (layer 18)",
+      "passed": 127,
+      "regressions": [],
+      "released": true,
+      "success": 0.984496,
+      "version": "v4"
     }
   ],
   "open_causes": {},
-  "regression_set_size": 123,
+  "regression_set_size": 127,
   "spec_problems": 0,
   "suite": {
     "families": 29,
@@ -454,6 +458,7 @@
     },
     "flags": {
       "boarding_guard": false,
+      "change_events": false,
       "freshness_check": false,
       "idempotency": false
     },
@@ -472,7 +477,7 @@
       "p95": 3552
     },
     "success": {
-      "rate": 0.6899,
+      "rate": 0.689922,
       "wilson95": [
         0.6056,
         0.7633
