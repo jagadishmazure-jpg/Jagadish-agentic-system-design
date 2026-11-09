@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 
 SPAN_KINDS = ("input", "guard", "llm", "route", "handoff", "context", "decision", "policy",
               "tool", "state", "saga", "runtime", "output")
-_EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
+_EMAIL = re.compile(r"(?<![\w.+-])[\w.+-]{1,64}@[\w-]{1,63}(?:\.[\w-]{1,63}){1,8}")  # bounded: no slow backtracking
 _PID = re.compile(r"\bP-\d{4}\b")
 
 

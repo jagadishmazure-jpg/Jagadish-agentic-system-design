@@ -32,7 +32,7 @@ def test_regression_set_matches_committed_file():
 
 
 def test_a_fix_that_breaks_a_passing_scenario_is_not_released(monkeypatch):
-    import harrowgate.learning as L
+    from harrowgate import learning as L
     real = L.run_suite
 
     def sabotaged(suite, cfg):

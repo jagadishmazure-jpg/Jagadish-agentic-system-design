@@ -49,14 +49,17 @@ def make_handler(system: System):
 
         def do_POST(self):  # noqa: N802
             if self.path != "/v1/assist":
-                return self._send(404, {"error": "not found"})
+                self._send(404, {"error": "not found"})
+                return
             length = int(self.headers.get("Content-Length") or 0)
             if length > 4096:
-                return self._send(413, {"error": "body too large"})
+                self._send(413, {"error": "body too large"})
+                return
             try:
                 body = json.loads(self.rfile.read(length) or b"{}")
             except json.JSONDecodeError:
-                return self._send(400, {"error": "invalid JSON"})
+                self._send(400, {"error": "invalid JSON"})
+                return
             with lock:
                 code, payload = assist(body, system)
             self._send(code, payload)
