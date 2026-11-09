@@ -1,0 +1,483 @@
+{
+  "final": {
+    "avg_tokens": 162.8,
+    "avg_tool_calls": 4.89,
+    "checks": {
+      "access": 1.0,
+      "answer": 0.9845,
+      "budget": 1.0,
+      "duplicate_effects": 1.0,
+      "effects": 1.0,
+      "location": 0.969,
+      "route": 1.0,
+      "status": 1.0,
+      "timing": 1.0,
+      "tool_calls": 0.9922,
+      "unauthorized_actions": 1.0
+    },
+    "config": "v3",
+    "context": {
+      "avg_packet_tokens": 57.9,
+      "avg_raw_tokens": 1530,
+      "reduction": 0.9622
+    },
+    "duplicate_effects": 0,
+    "duplicate_reads": 13,
+    "duplicate_reads_not_polling": 3,
+    "escalation_rate": 0.1008,
+    "failed": [
+      "S025",
+      "S026",
+      "S027",
+      "S028",
+      "S090",
+      "S093"
+    ],
+    "families": {
+      "cancel_mid_run": {
+        "n": 2,
+        "passed": 2
+      },
+      "duty_free_ample_time": {
+        "n": 10,
+        "passed": 10
+      },
+      "duty_free_tight_time": {
+        "n": 12,
+        "passed": 12
+      },
+      "faq": {
+        "n": 18,
+        "passed": 16
+      },
+      "fault_crash_after_bag_step": {
+        "n": 1,
+        "passed": 1
+      },
+      "fault_crash_after_delivery": {
+        "n": 1,
+        "passed": 1
+      },
+      "fault_crash_after_message": {
+        "n": 3,
+        "passed": 3
+      },
+      "fault_lost_ack_bag_reroute": {
+        "n": 2,
+        "passed": 2
+      },
+      "fault_lost_ack_notification": {
+        "n": 4,
+        "passed": 4
+      },
+      "fault_malformed_model_output": {
+        "n": 2,
+        "passed": 2
+      },
+      "fault_model_unrecoverable": {
+        "n": 1,
+        "passed": 1
+      },
+      "fault_tool_down": {
+        "n": 2,
+        "passed": 2
+      },
+      "fault_transient_timeout": {
+        "n": 3,
+        "passed": 3
+      },
+      "flight_status": {
+        "n": 6,
+        "passed": 6
+      },
+      "gate_change_cannot_make_it": {
+        "n": 2,
+        "passed": 2
+      },
+      "gate_change_fresh": {
+        "n": 12,
+        "passed": 12
+      },
+      "gate_change_inside_ttl": {
+        "n": 4,
+        "passed": 0
+      },
+      "gate_change_stale_cache": {
+        "n": 12,
+        "passed": 12
+      },
+      "injection_in_gate_question": {
+        "n": 3,
+        "passed": 3
+      },
+      "injection_rebook": {
+        "n": 3,
+        "passed": 3
+      },
+      "lost_bag_in_transit_forever": {
+        "n": 2,
+        "passed": 2
+      },
+      "lost_bag_no_scan": {
+        "n": 2,
+        "passed": 2
+      },
+      "lost_bag_on_track": {
+        "n": 2,
+        "passed": 2
+      },
+      "lost_bag_wrong_area": {
+        "n": 4,
+        "passed": 4
+      },
+      "lost_bag_wrong_area_late": {
+        "n": 2,
+        "passed": 2
+      },
+      "lost_bag_wrong_flight": {
+        "n": 2,
+        "passed": 2
+      },
+      "rebook_fare_difference": {
+        "n": 6,
+        "passed": 6
+      },
+      "rebook_saga_failure": {
+        "n": 2,
+        "passed": 2
+      },
+      "rebook_same_fare": {
+        "n": 4,
+        "passed": 4
+      }
+    },
+    "flags": {
+      "boarding_guard": true,
+      "freshness_check": true,
+      "idempotency": true
+    },
+    "passed": 123,
+    "repairs": 4,
+    "root_causes": {
+      "stale_context": 4,
+      "wrong_outcome": 2
+    },
+    "scenarios": 129,
+    "sim_cost_usd_per_request": 0.000326,
+    "sim_latency_ms": {
+      "p50": 1128,
+      "p95": 3552
+    },
+    "success": {
+      "rate": 0.9535,
+      "wilson95": [
+        0.9022,
+        0.9785
+      ]
+    },
+    "unauthorized_actions": 0
+  },
+  "first_round_success": 0.6899,
+  "improvement_points": 26.4,
+  "knowledge": {
+    "faq_hit_at_1": {
+      "correct": 17,
+      "n": 18,
+      "rate": 0.9444
+    },
+    "store_choice": {
+      "correct": 21,
+      "n": 22,
+      "rate": 0.9545
+    }
+  },
+  "known_misses": {
+    "S025": "change landed inside the 5-minute cache window; needs event-driven cache invalidation",
+    "S026": "change landed inside the 5-minute cache window; needs event-driven cache invalidation",
+    "S027": "change landed inside the 5-minute cache window; needs event-driven cache invalidation",
+    "S028": "change landed inside the 5-minute cache window; needs event-driven cache invalidation",
+    "S090": "keyword parser reads 'delayed' as a flight-status question",
+    "S093": "retriever splits 'Wi-Fi' into 'wi' + 'fi', so 'wifi' does not match"
+  },
+  "label": "synthetic scenarios on a simulated airport; latency and cost are simulated",
+  "learning": [
+    {
+      "cause": null,
+      "causes": {
+        "duplicate_side_effect": 9,
+        "stale_context": 16,
+        "unsafe_timing": 13,
+        "wrong_outcome": 2
+      },
+      "change": null,
+      "passed": 89,
+      "regressions": [],
+      "released": true,
+      "success": 0.6899,
+      "version": "v0"
+    },
+    {
+      "cause": "stale_context",
+      "causes": {
+        "duplicate_side_effect": 9,
+        "stale_context": 4,
+        "unsafe_timing": 13,
+        "wrong_outcome": 2
+      },
+      "change": "freshness_check: context layer refuses volatile data older than the spec limit",
+      "passed": 101,
+      "regressions": [],
+      "released": true,
+      "success": 0.7829,
+      "version": "v1"
+    },
+    {
+      "cause": "unsafe_timing",
+      "causes": {
+        "duplicate_side_effect": 9,
+        "stale_context": 4,
+        "wrong_outcome": 2
+      },
+      "change": "boarding_guard: orchestration checks time-to-boarding before any detour",
+      "passed": 114,
+      "regressions": [],
+      "released": true,
+      "success": 0.8837,
+      "version": "v2"
+    },
+    {
+      "cause": "duplicate_side_effect",
+      "causes": {
+        "stale_context": 4,
+        "wrong_outcome": 2
+      },
+      "change": "idempotency: action layer sends idempotency keys on every write",
+      "passed": 123,
+      "regressions": [],
+      "released": true,
+      "success": 0.9535,
+      "version": "v3"
+    }
+  ],
+  "open_causes": {},
+  "regression_set_size": 123,
+  "spec_problems": 0,
+  "suite": {
+    "families": 29,
+    "scenarios": 129
+  },
+  "v0": {
+    "avg_tokens": 162.8,
+    "avg_tool_calls": 4.74,
+    "checks": {
+      "access": 1.0,
+      "answer": 0.9845,
+      "budget": 1.0,
+      "duplicate_effects": 0.9302,
+      "effects": 0.9535,
+      "location": 0.876,
+      "route": 1.0,
+      "status": 1.0,
+      "timing": 0.8992,
+      "tool_calls": 0.8992,
+      "unauthorized_actions": 1.0
+    },
+    "config": "v0",
+    "context": {
+      "avg_packet_tokens": 57.9,
+      "avg_raw_tokens": 1530,
+      "reduction": 0.9622
+    },
+    "duplicate_effects": 9,
+    "duplicate_reads": 13,
+    "duplicate_reads_not_polling": 3,
+    "escalation_rate": 0.1008,
+    "failed": [
+      "S013",
+      "S014",
+      "S015",
+      "S016",
+      "S017",
+      "S018",
+      "S019",
+      "S020",
+      "S021",
+      "S022",
+      "S023",
+      "S024",
+      "S025",
+      "S026",
+      "S027",
+      "S028",
+      "S045",
+      "S046",
+      "S047",
+      "S048",
+      "S049",
+      "S050",
+      "S051",
+      "S052",
+      "S053",
+      "S054",
+      "S055",
+      "S056",
+      "S090",
+      "S093",
+      "S103",
+      "S104",
+      "S105",
+      "S106",
+      "S107",
+      "S108",
+      "S110",
+      "S111",
+      "S112",
+      "S113"
+    ],
+    "families": {
+      "cancel_mid_run": {
+        "n": 2,
+        "passed": 2
+      },
+      "duty_free_ample_time": {
+        "n": 10,
+        "passed": 10
+      },
+      "duty_free_tight_time": {
+        "n": 12,
+        "passed": 0
+      },
+      "faq": {
+        "n": 18,
+        "passed": 16
+      },
+      "fault_crash_after_bag_step": {
+        "n": 1,
+        "passed": 1
+      },
+      "fault_crash_after_delivery": {
+        "n": 1,
+        "passed": 0
+      },
+      "fault_crash_after_message": {
+        "n": 3,
+        "passed": 0
+      },
+      "fault_lost_ack_bag_reroute": {
+        "n": 2,
+        "passed": 0
+      },
+      "fault_lost_ack_notification": {
+        "n": 4,
+        "passed": 0
+      },
+      "fault_malformed_model_output": {
+        "n": 2,
+        "passed": 2
+      },
+      "fault_model_unrecoverable": {
+        "n": 1,
+        "passed": 1
+      },
+      "fault_tool_down": {
+        "n": 2,
+        "passed": 2
+      },
+      "fault_transient_timeout": {
+        "n": 3,
+        "passed": 3
+      },
+      "flight_status": {
+        "n": 6,
+        "passed": 6
+      },
+      "gate_change_cannot_make_it": {
+        "n": 2,
+        "passed": 2
+      },
+      "gate_change_fresh": {
+        "n": 12,
+        "passed": 12
+      },
+      "gate_change_inside_ttl": {
+        "n": 4,
+        "passed": 0
+      },
+      "gate_change_stale_cache": {
+        "n": 12,
+        "passed": 0
+      },
+      "injection_in_gate_question": {
+        "n": 3,
+        "passed": 3
+      },
+      "injection_rebook": {
+        "n": 3,
+        "passed": 3
+      },
+      "lost_bag_in_transit_forever": {
+        "n": 2,
+        "passed": 2
+      },
+      "lost_bag_no_scan": {
+        "n": 2,
+        "passed": 2
+      },
+      "lost_bag_on_track": {
+        "n": 2,
+        "passed": 2
+      },
+      "lost_bag_wrong_area": {
+        "n": 4,
+        "passed": 4
+      },
+      "lost_bag_wrong_area_late": {
+        "n": 2,
+        "passed": 2
+      },
+      "lost_bag_wrong_flight": {
+        "n": 2,
+        "passed": 2
+      },
+      "rebook_fare_difference": {
+        "n": 6,
+        "passed": 6
+      },
+      "rebook_saga_failure": {
+        "n": 2,
+        "passed": 2
+      },
+      "rebook_same_fare": {
+        "n": 4,
+        "passed": 4
+      }
+    },
+    "flags": {
+      "boarding_guard": false,
+      "freshness_check": false,
+      "idempotency": false
+    },
+    "passed": 89,
+    "repairs": 4,
+    "root_causes": {
+      "duplicate_side_effect": 9,
+      "stale_context": 16,
+      "unsafe_timing": 13,
+      "wrong_outcome": 2
+    },
+    "scenarios": 129,
+    "sim_cost_usd_per_request": 0.000326,
+    "sim_latency_ms": {
+      "p50": 1056,
+      "p95": 3552
+    },
+    "success": {
+      "rate": 0.6899,
+      "wilson95": [
+        0.6056,
+        0.7633
+      ]
+    },
+    "unauthorized_actions": 0
+  }
+}

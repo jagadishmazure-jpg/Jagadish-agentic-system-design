@@ -1,0 +1,16 @@
+# Checkov config for infra/terraform. Every skip has a reason; any finding not listed fails CI.
+# The stack serves synthetic data only and is written, not run.
+compact: true
+quiet: true
+framework:
+  - terraform
+skip-check:
+  # Public network access on Key Vault and the Microsoft Foundry resource stays on so the Container App
+  # (no VNet in this demo) and the GitHub runner can reach them. Keys are disabled; every call needs Entra ID.
+  - CKV_AZURE_189
+  - CKV_AZURE_109
+  - CKV_AZURE_134
+  # Private endpoints need a VNet and cost money each month; listed as Planned in the README.
+  - CKV2_AZURE_32
+  # Customer-managed keys need a key-rotation process; platform keys suffice for synthetic data.
+  - CKV2_AZURE_22
